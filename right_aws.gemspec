@@ -5,7 +5,7 @@ $:.unshift lib unless $:.include?(lib)
 require 'right_aws'
 
 Gem::Specification.new do |s|
-  s.name        = "rightaws"
+  s.name        = "right_aws"
   s.version     = RightAws::VERSION::STRING
   s.platform    = Gem::Platform::RUBY
 	s.author 			= "RightScale, Inc."
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.description = "Interface classes for the Amazon EC2, SQS, and S3 Web Services" 
 
   s.required_rubygems_version = ">= 1.3.6"
-  s.rubyforge_project         = "right_aws"
+  s.rubyforge_project         = "rightaws"
 
   s.add_development_dependency "rcov"
 	s.add_dependency 'right_http_connection', '>= 1.2.1'
