@@ -32,6 +32,51 @@ unless defined? ActiveSupport::CoreExtensions
   #
   class String #:nodoc:
 
+		# Ruby 1.9 introduces an inherit argument for Module#const_get and
+    # #const_defined? and changes their default behavior.
+    if Module.method(:const_get).arity == 1
+      # Tries to find a constant with the name specified in the argument string:
+      #
+      #   "Module".constantize     # => Module
+      #   "Test::Unit".constantize # => Test::Unit
+      #
+      # The name is assumed to be the one of a top-level constant, no matter whether
+      # it starts with "::" or not. No lexical context is taken into account:
+      #
+      #   C = 'outside'
+      #   module M
+      #     C = 'inside'
+      #     C               # => 'inside'
+      #     "C".constantize # => 'outside', same as ::C
+      #   end
+      #
+      # NameError is raised when the name is not in CamelCase or the constant is
+      # unknown.
+      def constantize()
+				camel_cased_word = self
+        names = camel_cased_word.split('::')
+        names.shift if names.empty? || names.first.empty?
+
+        constant = Object
+        names.each do |name|
+          constant = constant.const_defined?(name) ? constant.const_get(name) : constant.const_missing(name)
+        end
+        constant
+      end
+    else
+      def constantize() #:nodoc:
+				camel_cased_word = self
+        names = camel_cased_word.split('::')
+        names.shift if names.empty? || names.first.empty?
+
+        constant = Object
+        names.each do |name|
+          constant = constant.const_defined?(name, false) ? constant.const_get(name) : constant.const_missing(name)
+        end
+        constant
+      end
+    end
+
     # Constantize tries to find a declared constant with the name specified
     # in the string. It raises a NameError when the name is not in CamelCase
     # or is not initialized.
@@ -39,17 +84,40 @@ unless defined? ActiveSupport::CoreExtensions
     # Examples
     #   "Module".constantize #=> Module
     #   "Class".constantize #=> Class
-    def constantize()
-      unless /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/ =~ self
-        raise NameError, "#{self.inspect} is not a valid constant name!"
-      end
-
-      Object.module_eval("::#{$1}", __FILE__, __LINE__)
-    end
-
+		#
+		# Broken in Rails 3 and maybe 2.3
+    #def constantize()
+    #  unless /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/ =~ self
+    #    raise NameError, "#{self.inspect} is not a valid constant name!"
+    #  end
+		#
+    #  Object.module_eval("::#{$1}", __FILE__, __LINE__)
+    #end
+		
+		# By default, +camelize+ converts strings to UpperCamelCase. If the argument to +camelize+
+    # is set to <tt>:lower</tt> then +camelize+ produces lowerCamelCase.
+    #
+    # +camelize+ will also convert '/' to '::' which is useful for converting paths to namespaces.
+    #
+    # Examples:
+    #   "active_record".camelize                # => "ActiveRecord"
+    #   "active_record".camelize(:lower)        # => "activeRecord"
+    #   "active_record/errors".camelize         # => "ActiveRecord::Errors"
+    #   "active_record/errors".camelize(:lower) # => "activeRecord::Errors"
     def camelize()
-      self.dup.split(/_/).map{ |word| word.capitalize }.join('')
+			lower_case_and_underscored_word = self
+			first_letter_in_uppercase = true
+      if first_letter_in_uppercase
+        lower_case_and_underscored_word.to_s.gsub(/\/(.?)/) { "::#{$1.upcase}" }.gsub(/(?:^|_)(.)/) { $1.upcase }
+      else
+        lower_case_and_underscored_word.to_s[0].chr.downcase + camelize(lower_case_and_underscored_word)[1..-1]
+      end
     end
+
+		# Broken in Rails 3 and maybe 2.3
+    #def camelize()
+    #  self.dup.split(/_/).map{ |word| word.capitalize }.join('')
+    #end
 
   end
 
