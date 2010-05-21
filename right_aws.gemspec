@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
+lib = "#{File.dirname(File.expand_path(__FILE__))}/lib"
 
-require 'lib/right_aws'
+require "#{lib}/right_aws"
 
 Gem::Specification.new do |s|
   s.name        = "right_aws"
