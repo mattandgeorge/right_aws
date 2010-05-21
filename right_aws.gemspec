@@ -1,9 +1,8 @@
 # -*- encoding: utf-8 -*-
-require File.join(File.dirname(__FILE__), "lib", "right_aws")
 
 Gem::Specification.new do |s|
   s.name        = "right_aws"
-  s.version     = RightAws::VERSION::STRING
+  s.version     = "2.0.0"
   s.platform    = Gem::Platform::RUBY
 	s.author 			= "RightScale, Inc."
 	s.email   		= "support@rightscale.com"
