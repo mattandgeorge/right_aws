@@ -1,8 +1,6 @@
 # -*- encoding: utf-8 -*-
-lib = File.expand_path('../lib/', __FILE__)
-$:.unshift lib unless $:.include?(lib)
 
-require 'right_aws'
+require 'lib/right_aws'
 
 Gem::Specification.new do |s|
   s.name        = "right_aws"
